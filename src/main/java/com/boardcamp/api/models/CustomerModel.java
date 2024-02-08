@@ -1,6 +1,6 @@
 package com.boardcamp.api.models;
 
-import com.boardcamp.api.dtos.GameDTO;
+import com.boardcamp.api.dtos.CustomerDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,14 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "games")
-public class GameModel {
-
-    public GameModel(GameDTO dto) {
+@Table(name = "customers")
+public class CustomerModel {
+    public CustomerModel(CustomerDTO dto) {
         this.name = dto.getName();
-        this.image = dto.getImage();
-        this.stockTotal = dto.getStockTotal();
-        this.pricePerDay = dto.getPricePerDay();
+        this.cpf = dto.getCpf();
     }
 
     @Id
@@ -33,12 +30,6 @@ public class GameModel {
     @Column(length = 150, nullable = false, unique = true)
     private String name;
 
-    @Column(length = 300, nullable = false)
-    private String image;
-
-    @Column(nullable = false)
-    private int stockTotal;
-
-    @Column(nullable = false)
-    private double pricePerDay;
+    @Column(length = 11, nullable = false)
+    private String cpf;
 }
