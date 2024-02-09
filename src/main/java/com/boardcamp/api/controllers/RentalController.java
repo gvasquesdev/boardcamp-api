@@ -2,11 +2,8 @@ package com.boardcamp.api.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boardcamp.api.dtos.GameDTO;
 import com.boardcamp.api.dtos.RentalDTO;
-import com.boardcamp.api.models.GameModel;
 import com.boardcamp.api.models.RentalModel;
-import com.boardcamp.api.services.GameService;
 import com.boardcamp.api.services.RentalService;
 
 import jakarta.validation.Valid;
