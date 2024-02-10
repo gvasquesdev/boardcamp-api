@@ -7,6 +7,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.boardcamp.api.dtos.RentalDTO;
+import com.boardcamp.api.exceptions.ExceptionNotFound;
+import com.boardcamp.api.exceptions.ExceptionUnprocessableEntity;
 import com.boardcamp.api.models.CustomerModel;
 import com.boardcamp.api.models.GameModel;
 import com.boardcamp.api.models.RentalModel;
@@ -35,30 +37,24 @@ public class RentalService {
     public RentalModel save(RentalDTO dto) {
 
         CustomerModel customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Cliente não encontrado com o ID fornecido: " + dto.getCustomerId()));
-
+                .orElseThrow(() -> new ExceptionNotFound("User not found!"));
         GameModel game = gameRepository.findById(dto.getGameId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Jogo não encontrado com o ID fornecido: " + dto.getGameId()));
+                .orElseThrow(() -> new ExceptionNotFound("Game not found!"));
 
         int rentedStock = rentalRepository.countByGame(game);
         int availableStock = game.getStockTotal();
-        if (rentedStock >= availableStock) {
-            throw new IllegalStateException("Não há estoque disponível para o jogo com ID: " + dto.getGameId());
+
+        if (rentedStock < 1) {
+            throw new ExceptionUnprocessableEntity("Game out of stock!");
         }
 
-        // Calcular o preço original
         int originalPrice = (int) (dto.getDaysRented() * game.getPricePerDay());
 
-        // Criar o objeto de aluguel
         RentalModel rental = new RentalModel(dto, customer, game, originalPrice);
 
-        // Salvar o aluguel
         RentalModel savedRental = rentalRepository.save(rental);
 
-        // Atualizar o estoque do jogo
-        game.setStockTotal(availableStock - 1); // Reduzir o estoque em 1 unidade
+        game.setStockTotal(availableStock - 1);
         gameRepository.save(game);
 
         return savedRental;
@@ -77,10 +73,10 @@ public class RentalService {
 
     public RentalModel update(Long id) {
         RentalModel rental = rentalRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Rental not found by this gameId!"));
+                () -> new ExceptionNotFound("Rental not found by this gameId!"));
 
         if (rental.getReturnDate() != null) {
-            throw new IllegalArgumentException("This rent has already been refunded");
+            throw new ExceptionUnprocessableEntity("Game already returned!");
         }
 
         int delayFee = calculateDelayFee(rental.getRentDate(), rental.getDaysRented(), rental.getOriginalPrice());

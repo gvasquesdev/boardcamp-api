@@ -8,6 +8,5 @@ import com.boardcamp.api.models.RentalModel;
 
 @Repository
 public interface RentalRepository extends JpaRepository<RentalModel, Long> {
-
     int countByGame(GameModel game);
 }

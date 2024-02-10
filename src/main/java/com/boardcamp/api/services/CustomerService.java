@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.boardcamp.api.dtos.CustomerDTO;
+import com.boardcamp.api.exceptions.ExceptionConflict;
+import com.boardcamp.api.exceptions.ExceptionNotFound;
 import com.boardcamp.api.models.CustomerModel;
 import com.boardcamp.api.repositories.CustomerRepository;
 
@@ -22,11 +24,14 @@ public class CustomerService {
     }
 
     public CustomerModel findById(Long id) {
-        Optional<CustomerModel> optCustomer = customersRepository.findById(id);
-        return optCustomer.orElse(null);
+        return customersRepository.findById(id).orElseThrow(() -> new ExceptionNotFound("This user does not exist!"));
     }
 
     public CustomerModel save(CustomerDTO dto) {
+
+        if (customersRepository.existsByCpf(dto.getCpf())) {
+            throw new ExceptionConflict("This CPF is already registered!");
+        }
 
         CustomerModel customer = new CustomerModel(dto);
         return customersRepository.save(customer);
